@@ -1,9 +1,11 @@
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => {
-  const braintrustExporter = vi.fn(function () {
+  const braintrustSpanProcessor = vi.fn(function () {
     return {
-      export: vi.fn(),
+      forceFlush: vi.fn().mockResolvedValue(undefined),
+      onEnd: vi.fn(),
+      onStart: vi.fn(),
       shutdown: vi.fn().mockResolvedValue(undefined),
     };
   });
@@ -24,14 +26,14 @@ const mocks = vi.hoisted(() => {
   });
 
   return {
-    braintrustExporter,
+    braintrustSpanProcessor,
     langSmithExporter,
     nodeTracerProvider,
   };
 });
 
-vi.mock("@opentelemetry/exporter-trace-otlp-proto", () => ({
-  OTLPTraceExporter: mocks.braintrustExporter,
+vi.mock("@braintrust/otel", () => ({
+  BraintrustSpanProcessor: mocks.braintrustSpanProcessor,
 }));
 
 vi.mock("langsmith/experimental/otel/exporter", () => ({
@@ -84,12 +86,10 @@ describe("buildTracerProvider", () => {
     const { buildTracerProvider } = await import("../../framework/otel.js");
 
     await expect(buildTracerProvider()).resolves.not.toBeNull();
-    expect(mocks.braintrustExporter).toHaveBeenCalledWith({
-      url: "https://api.braintrust.dev/otel/v1/traces",
-      headers: {
-        Authorization: "Bearer braintrust-test-key",
-        "x-bt-parent": "project_name:stagehand-dev",
-      },
+    expect(mocks.braintrustSpanProcessor).toHaveBeenCalledWith({
+      apiKey: "braintrust-test-key",
+      parent: "project_name:stagehand-dev",
+      filterAISpans: false,
     });
     expect(mocks.langSmithExporter).toHaveBeenCalledOnce();
     expect(constructedSpanProcessors()).toHaveLength(2);
@@ -101,12 +101,10 @@ describe("buildTracerProvider", () => {
     const { buildTracerProvider } = await import("../../framework/otel.js");
 
     await expect(buildTracerProvider()).resolves.not.toBeNull();
-    expect(mocks.braintrustExporter).toHaveBeenCalledWith({
-      url: "https://api.braintrust.dev/otel/v1/traces",
-      headers: {
-        Authorization: "Bearer braintrust-test-key",
-        "x-bt-parent": "project_name:stagehand-dev",
-      },
+    expect(mocks.braintrustSpanProcessor).toHaveBeenCalledWith({
+      apiKey: "braintrust-test-key",
+      parent: "project_name:stagehand-dev",
+      filterAISpans: false,
     });
     expect(mocks.langSmithExporter).not.toHaveBeenCalled();
     expect(constructedSpanProcessors()).toHaveLength(1);
@@ -137,7 +135,7 @@ describe("buildTracerProvider", () => {
     const { buildTracerProvider } = await import("../../framework/otel.js");
 
     await expect(buildTracerProvider()).resolves.not.toBeNull();
-    expect(mocks.braintrustExporter).not.toHaveBeenCalled();
+    expect(mocks.braintrustSpanProcessor).not.toHaveBeenCalled();
     expect(mocks.langSmithExporter).toHaveBeenCalledOnce();
     expect(constructedSpanProcessors()).toHaveLength(1);
   });
