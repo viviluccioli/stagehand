@@ -1,5 +1,11 @@
 # @browserbasehq/stagehand
 
+## 3.7.1
+
+### Patch Changes
+
+- [#2359](https://github.com/browserbase/stagehand/pull/2359) [`2cd1edf`](https://github.com/browserbase/stagehand/commit/2cd1edf49e5b726d817805e3258f2fa9b7fa17b0) Thanks [@shrey150](https://github.com/shrey150)! - Remove the noisy AI SDK "system message in messages" warning from `act()`, `extract()`, and `observe()` (including when the agent's own tools call them internally).
+
 ## 3.7.0
 
 ### Minor Changes

@@ -1,5 +1,12 @@
 # @browserbasehq/stagehand-server-v3
 
+## 3.7.3
+
+### Patch Changes
+
+- Updated dependencies [[`2cd1edf`](https://github.com/browserbase/stagehand/commit/2cd1edf49e5b726d817805e3258f2fa9b7fa17b0)]:
+  - @browserbasehq/stagehand@3.7.1
+
 ## 3.7.2
 
 ### Patch Changes
